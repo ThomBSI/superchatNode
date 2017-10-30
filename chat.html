@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Le Super Chat !</title>
+    <meta charset="utf-8">
+    <style type="text/css">
+        .message strong {
+            background-color: black;
+            color: white;
+            font-weight: bold;
+        }
+        .connection {
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <p id="pseudo"></p>
+    <h1>Le super chat en temps réel !!</h1>
+    <form id="message_form">
+        <input type="text" name="new_message" placeholder="Votre message...">
+        <input type="submit" name="send_message" value="Envoyer">
+    </form>
+    <div id="messages_list">
+
+    </div>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+        var socket = io.connect('http://localhost:8080'),
+            pseudo;
+
+        function init() {
+            validPseudo();
+            window.onbeforeunload = function(event) {
+                // var event = event || window.event,
+                //     retrunMessage = 'Ceci va effacer tous les messages de cette conversation :( ... tu es sûr de vouloir faire ça ?';
+                // if(event) {
+                //     event.returnValue = retrunMessage;
+                // }
+                // console.log(event);
+                // socket.emit('exit.user',pseudo);
+                return '';
+            };
+            $('#pseudo').html(pseudo);
+            $('#message_form').on('submit',sendMessage);
+            sendPseudo();
+            socketsHandler();
+        };
+        function socketsHandler() {
+            socket.on('new.user.broadcast',function(pseudo) {
+                printMessage(pseudo,' a rejoint le chat','connection');
+            });
+            socket.on('new.message.broadcast',function(response) {
+                printMessage(response.pseudo,response.message,'message');
+            });
+            socket.on('exit.user.broadcast',function(pseudo) {
+                printMessage(pseudo,' a quitté le chat','connection');
+            });
+        };
+        function printMessage(pseudo,message,type) {
+            $('#messages_list').prepend('<p class="' + type + '"><strong>' + pseudo + '</strong> : ' + message + '</p>');
+        };
+        function sendMessage(event) {
+            var $input = $(this).closest('form').find('input[name=new_message]'),
+                message = $input.val();
+            event.preventDefault();
+            socket.emit('new.message',message);
+            printMessage(pseudo,message,'message');
+            $input.val(null);
+        };
+        function sendPseudo(event) {
+            socket.emit('new.user',pseudo);
+        };
+        function validPseudo() {
+            pseudo = prompt('Quel est votre pseudo ?');
+            if (pseudo === '') {
+                this.validPseudo();
+            }
+        };
+
+        init();
+    </script>
+</body>
+</html>
