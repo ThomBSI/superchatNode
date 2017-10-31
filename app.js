@@ -15,6 +15,7 @@ io.sockets.on('connect',function(socket) {
         }
         pseudo = ent.encode(pseudo);
         socket.pseudo = pseudo;
+        console.log('new user;userName : ' + pseudo);
         socket.broadcast.emit('new.user.broadcast',pseudo);
     });
     socket.on('new.message',function(message) {

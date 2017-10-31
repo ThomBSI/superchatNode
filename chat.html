@@ -27,19 +27,12 @@
     <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript">
-        var socket = io.connect('http://localhost:8080'),
+        var socket = io.connect('http://192.168.11.129:8080'),
             pseudo;
 
         function init() {
             validPseudo();
             window.onbeforeunload = function(event) {
-                // var event = event || window.event,
-                //     retrunMessage = 'Ceci va effacer tous les messages de cette conversation :( ... tu es sûr de vouloir faire ça ?';
-                // if(event) {
-                //     event.returnValue = retrunMessage;
-                // }
-                // console.log(event);
-                // socket.emit('exit.user',pseudo);
                 return '';
             };
             $('#pseudo').html(pseudo);
@@ -71,6 +64,7 @@
         };
         function sendPseudo(event) {
             socket.emit('new.user',pseudo);
+            console.log('pseudo envoyé au serveur : ' + pseudo);
         };
         function validPseudo() {
             pseudo = prompt('Quel est votre pseudo ?');
